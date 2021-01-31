@@ -1,4 +1,3 @@
-# curl -s -H "User-agent: 'myScript'" https://www.reddit.com/r/TikTokCringe/top.json\?sort\=top\&t\=day\&limit\=12 | jq '.' |  grep url_overridden_by_dest | grep -Eoh "https:\/\/v\.redd\.it\/\w{13}"
 
 import requests
 import youtube_dl
@@ -49,12 +48,8 @@ class RedditScrub:
         return videos
 
     def mergeVideos(self):
-        # os.system('for f in mp4/*.mp4; do echo "file $f" >> list.txt; done && ffmpeg -f concat -i list.txt final.mp4 && rm list.txt')
-        os.system('for f in mp4/*.mp4 ; do echo " file $f" >> list.txt; done && ffmpeg -f concat -safe 0 -i list.txt -s 1280x720 -crf 24 stitched-video.mp4 && rm list.txt')
-
-        #os.system('ffmpeg -f concat -safe 0 -i list.txt -s 1280x720 -crf 24 stitched-video.mp4 && rm list.txt')
-
-
+        os.system('for f in mp4/*.mp4; do echo "file $f" >> list.txt; done && ffmpeg -f concat -i list.txt final.mp4 && rm list.txt')
+        # os.system('for f in mp4/*.mp4 ; do echo " file $f" >> list.txt; done && ffmpeg -f concat -safe 0 -i list.txt -s 1280x720 -crf 24 stitched-video.mp4 && rm list.txt')
 
     def blurVideos(self):
         for video in self.getDirectoryVideos():
@@ -63,15 +58,5 @@ class RedditScrub:
 
 
 
-tiktoks = RedditScrub("tiktokcringe")
-
-# tiktoks.getTopVideosToday()
-
-# tiktoks.downloadVideos()
-
-# print(tiktoks.getDirectoryVideos())
-
-# tiktoks.blurVideos()
-
-tiktoks.mergeVideos()
+# tiktoks = RedditScrub("tiktokcringe")
 
