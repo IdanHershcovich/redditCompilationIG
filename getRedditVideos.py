@@ -29,46 +29,49 @@ class RedditScrub:
         json = res.json()
         data = json['data']['children']
         for link in data:
-            # print(link['data'][self.video_attribute])
             self.reddit_links.append(link['data'][self.video_attribute])
 
     def downloadVideos(self):
         # TODO: add a way to only run if it hasnt been done before, to avoid downloading videos each time
         dl = youtube_dl.YoutubeDL()
-        ydl_opts = {}
+        ydl_opts = {
+            'outtmpl': 'mp4/%(title)s.%(ext)s'
+        }
         for video in self.reddit_links:
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([video])
 
     def getDirectoryVideos(self):
         import glob
-        dir = '.'
+        dir = './mp4/'
         # videos = os.path.basename(glob.glob(os.path.join(dir, '*.mp4')))
-        videos = [os.path.basename(x)
-                  for x in glob.glob(os.path.join(dir, '*.mp4'))]
+        videos = [os.path.basename(x) for x in glob.glob(dir)]
         return videos
 
     def mergeVideos(self):
-        pass
+        # os.system('for f in mp4/*.mp4; do echo "file $f" >> list.txt; done && ffmpeg -f concat -i list.txt final.mp4 && rm list.txt')
+        os.system('for f in mp4/*.mp4 ; do echo " file $f" >> list.txt; done && ffmpeg -f concat -safe 0 -i list.txt -s 1280x720 -crf 24 stitched-video.mp4 && rm list.txt')
+
+        #os.system('ffmpeg -f concat -safe 0 -i list.txt -s 1280x720 -crf 24 stitched-video.mp4 && rm list.txt')
+
+
 
     def blurVideos(self):
         for video in self.getDirectoryVideos():
-            command = ' ffmpeg -i %s -lavfi \'[0:v]scale=ih*16/9:-1,boxblur=luma_radius=min(h\,w)/20:luma_power=1:chroma_radius=min(cw\,ch)/20:chroma_power=1[bg];[bg][0:v]overlay=(W-w)/2:(H-h)/2,crop=h=iw*9/16\' -vb 800K blurred%s ;' % (
-                video, video)
+            command = ' ffmpeg -i %s -lavfi \'[0:v]scale=ih*16/9:-1,boxblur=luma_radius=min(h\,w)/20:luma_power=1:chroma_radius=min(cw\,ch)/20:chroma_power=1[bg];[bg][0:v]overlay=(W-w)/2:(H-h)/2,crop=h=iw*9/16\' -vb 800K ./blur/blurred%s ;' % (video, video)
             os.system(command)
-
-
-
-def shellquote(s):
-    return "'" + s.replace("'", "'\\''") + "'"
 
 
 
 tiktoks = RedditScrub("tiktokcringe")
 
-tiktoks.getTopVideosToday()
+# tiktoks.getTopVideosToday()
 
-tiktoks.blurVideos()
+# tiktoks.downloadVideos()
 
-# os.system("find *.mp4 | sed 's:\ :\\\ :g'| sed 's/^/file /' > fl.txt; ffmpeg -f concat -i fl.txt -c copy output.mp4; rm fl.txt")
-# os.system(tiktoks.shellquote("ffmpeg -i output.mp4 -vf 'split [original][copy]\; [copy] crop=ih*9/16:ih:iw/2-ow/2:0, scale=1280:2282, gblur=sigma=20[blurred]\; [blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2' blurred.mp4"))
+# print(tiktoks.getDirectoryVideos())
+
+# tiktoks.blurVideos()
+
+tiktoks.mergeVideos()
+
